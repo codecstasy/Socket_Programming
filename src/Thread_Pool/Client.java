@@ -28,6 +28,7 @@ public class Client {
             // Reading the response from server
             String response = (String)objectInputStream.readObject();
             System.out.println("Response from server: " + response);
+            objectOutputStream.flush();
         }
 
         clientSocket.close();

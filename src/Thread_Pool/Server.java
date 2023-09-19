@@ -10,12 +10,12 @@ public class Server {
     private static final int PORT = 8080;
 
     public static void main(String[] args) throws IOException {
-        ExecutorService executorService = Executors.newFixedThreadPool(10);    // Using Fixed sized thread pool
+        ExecutorService executorService = Executors.newFixedThreadPool(10); // Using Fixed sized thread pool
 
         ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Server started at port " + PORT);
 
-        while(true) {
+        while (true) {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
@@ -27,6 +27,7 @@ public class Server {
 
 class ClientHandler implements Runnable {
     private final Socket clientSocket;
+
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -43,14 +44,20 @@ class ClientHandler implements Runnable {
             ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
 
             while(true) {
+                try {
                 // Reading the message from client
                 String message = (String) objectInputStream.readObject();
                 if(message == null)
+                     break;
+                    // Echoing the message back to client
+                    objectOutputStream.writeObject("Echo: " + message.toUpperCase());
+                    objectOutputStream.flush();
+                } catch (EOFException e) {
+                    System.out.println("Client Disconnected");
                     break;
-                // Echoing the message back to client
-                objectOutputStream.writeObject("Echo: " + message.toUpperCase());
+                }
             }
-//            clientSocket.close();
+           clientSocket.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
